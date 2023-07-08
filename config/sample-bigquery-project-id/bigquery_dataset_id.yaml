@@ -1,0 +1,17 @@
+- encrypted_table_id: bigquery-project-id.bigquery_dataset_id.users
+  key_table_id: key-project-id.key_dataset_id.key_table_id_1
+  key_column: key
+  primary_key: user_id
+  pii_columns:
+    - name: STRING
+    - email: STRING
+    - address: STRING
+    - birth_date: DATE
+
+- encrypted_table_id: bigquery-project-id.bigquery_dataset_id.accounts
+  key_table_id: key-project-id.key_dataset_id.key_table_id_2
+  key_column: key
+  primary_key: user_id
+  pii_columns:
+    - email: STRING
+    - account_id: INT64

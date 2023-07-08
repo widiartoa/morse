@@ -1,0 +1,11 @@
+__pycache__/
+
+config/*
+!config/sample-bigquery-project-id/
+
+output/*
+!output/encrypted/
+output/encrypted/*
+!output/encrypted/bq_sql/
+output/encrypted/bq_sql/*
+!output/encrypted/bq_sql/sample-bigquery-project-id/
