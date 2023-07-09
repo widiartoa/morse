@@ -2,7 +2,7 @@
   key_table_id: key-project-id.key_dataset_id.key_table_id_1
   key_column: key
   primary_key: user_id
-  pii_columns:
+  encrypted_columns:
     - name: STRING
     - email: STRING
     - address: STRING
@@ -12,6 +12,6 @@
   key_table_id: key-project-id.key_dataset_id.key_table_id_2
   key_column: key
   primary_key: user_id
-  pii_columns:
+  encrypted_columns:
     - email: STRING
     - account_id: INT64
