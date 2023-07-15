@@ -1,60 +1,28 @@
-import yaml
-from utils import (output_utils, string_utils, yaml_utils)
+from utils import (output_utils, string_utils)
+import table_config
 
 class BigQueryEncryptor:
-    def __init__(self, yaml_path):
-        self.project_id = yaml_utils.get_project_id(yaml_path)
-        self.dataset_id = yaml_utils.get_dataset_id(yaml_path)
-        self.yaml_path = yaml_path
-
-
-    def set_table_config(self, yaml_config):
-        print("===== \n")
-        print(yaml_config)
-        print("\n===== \n")
-
-        self.encrypted_table_id = yaml_utils.get_encrypted_table_id(yaml_config)
-        self.encrypted_columns = yaml_utils.get_encrypted_columns(yaml_config)
-        self.encrypted_primary_key = yaml_utils.get_encrypted_primary_key(yaml_config)
-
-        self.key_table_id = yaml_utils.get_key_table_id(yaml_config)
-        self.key_column = yaml_utils.get_key_column(yaml_config)
- 
-
-    def generate_queries(self):
-        with open(self.yaml_path, "r") as stream:
-            try:
-                yaml_configs = yaml.safe_load(stream)
-
-                output_utils.generate_folder(string_utils.bq_encrypted_output_path(), 
-                                           self.project_id, 
-                                           self.dataset_id)
-
-                for yaml_config in yaml_configs:
-                    self.set_table_config(yaml_config)
-                    
-                    output_utils.generate_file(string_utils.bq_encrypted_output_path(), 
-                                             self.query_builder(),
-                                             self.project_id, 
-                                             self.dataset_id, 
-                                             self.encrypted_table_id)
-
-            except yaml.YAMLError as exc:
-                print(exc)
-
+    def __init__(self, table: table_config.TableConfig):
+        self.table_conf = table
+    
+    def generate_encrypted_table_sql(self):
+        output_utils.generate_file(string_utils.bq_encrypted_output_path(), 
+                                   self.query_builder(),
+                                   self.table_conf.get_project_id(), 
+                                   self.table_conf.get_dataset_id(), 
+                                   self.table_conf.get_encrypted_table_id())
 
     def query_builder(self):
-        query = string_utils.bq_query(self.exception_statement(self.encrypted_columns), 
-                                      self.encrypted_statement(self.encrypted_columns, 
-                                                               self.key_column, 
-                                                               self.encrypted_primary_key), 
-                                      self.encrypted_table_id, 
-                                      self.key_table_id)
+        query = string_utils.bq_query(self.exception_statement(self.table_conf.get_encrypted_columns()), 
+                                      self.encrypted_statement(self.table_conf.get_encrypted_columns(), 
+                                                               self.table_conf.get_key_column(), 
+                                                               self.table_conf.get_encrypted_primary_key()), 
+                                      self.table_conf.get_encrypted_table_id(), 
+                                      self.table_conf.get_key_table_id())
         
         print(query)
         return query
 
-    
     def exception_statement(self, encrypted_columns):
         exclude_statement = ''
         columns_left = len(encrypted_columns)
@@ -66,7 +34,6 @@ class BigQueryEncryptor:
         
         return exclude_statement
 
-    
     def encrypted_statement(self, encrypted_columns, key, primary_key):
         encrypted_statement = ''
         columns_left = len(encrypted_columns)
